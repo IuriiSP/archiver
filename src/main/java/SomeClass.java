@@ -6,10 +6,14 @@ import java.util.List;
 public class SomeClass {
     public static void main(String[] args) {
         String dirname = "D:\\Java\\someDir";
+        // чтение параметров имени каталога из ресурсов
+        // получение времени от сервера
+        // 1й метод создание каталога с учетом эксепшенов
+        // 2й метод сортировка и разбиение (коллекции)
+        // 3й запись в архив
 
         File f1 = new File(dirname);
         System.out.println(f1.isDirectory());
-//        FilenameFilter a_m = new DirSplit("[a-m]*");
         String[] s = f1.list();
         List<String> am = new ArrayList<>();
         List<String> nz = new ArrayList<>();
