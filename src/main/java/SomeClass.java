@@ -3,9 +3,10 @@ import org.apache.commons.net.ntp.TimeInfo;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class SomeClass {
 
@@ -13,17 +14,12 @@ public class SomeClass {
 
     public static void main(String[] args) throws IOException {
 
-        // чтение параметров имени каталога из ресурсов
-        // получение времени от сервера
-        // 1й метод создание каталога с учетом эксепшенов
-        // 2й метод сортировка и разбиение (коллекции)
-        // 3й запись в архив
-
         File directory = new File(getPath());
-        List<List<String>> dirList = rootSplit(directory);
-        System.out.println(getTime());
-        dirList.forEach(x -> System.out.println(x));
-
+        HashMap<String, List<String>> directories = dirSort(directory);
+        String time = getTime();
+        File zipDir = new File(directory + time);
+        zipDir.mkdirs();
+        directories.forEach((k,v) -> zipCompress(v, zipDir + "\\" + k));
     }
 
     public static String getPath(){
@@ -39,34 +35,35 @@ public class SomeClass {
         return directoryName;
     }
 
-    public static List<List<String>> rootSplit (File file){
+    public static HashMap<String, List<String>> dirSort(File file){
         File catalog = new File(getPath());
         String s[] = catalog.list();
         List<String> am = new ArrayList<>();
         List<String> nz = new ArrayList<>();
-        List<String> numbers = new ArrayList<>();
-        List<List<String>> dir = new ArrayList<>();
+        List<String> digit = new ArrayList<>();
+        HashMap<String,List<String>> dir = new HashMap<>();
 
         for (int i = 0; i < s.length; i++){
             if (s[i].matches(".*\\d{4,}.*")){
-                numbers.add(s[i]);
+                digit.add(file.getPath() + "\\" + s[i]);
             }
             else if (s[i].matches("[a-mA-M].*")){
-                am.add(s[i]);
+                am.add(file.getPath() + "\\" + s[i]);
             }
             else if (s[i].matches("[n-zN-Z].*")){
-                nz.add(s[i]);
+                nz.add(file.getPath() + "\\" + s[i]);
             }
         }
-        dir.add(am);
-        dir.add(nz);
-        dir.add(numbers);
-
+        dir.put("am.zip", am);
+        dir.put("nz.zip", nz);
+        dir.put("digit.zip", digit);
         return dir;
     }
 
     public static String getTime () throws IOException {
         String TIME_SERVER = "pool.ntp.org";
+//        www.pool.ntp.org поддерживает round-robin списки публичных Stratum-2 NTP серверов.
+//        Таким образом обеспечивается балансировка нагрузки, и они практически всегда доступны.
         NTPUDPClient timeClient = new NTPUDPClient();
         InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
         TimeInfo timeInfo = timeClient.getTime(inetAddress);
@@ -75,6 +72,27 @@ public class SomeClass {
         String pattern = "yyyy-MM-dd HH-24-mm";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         return simpleDateFormat.format(time);
+    }
+
+    public static void zipCompress (List<String> list, String filename){
+        try (FileOutputStream fos = new FileOutputStream(filename);ZipOutputStream zipOut = new ZipOutputStream(fos)){
+            for (String fname : list){
+                File fileToZip = new File(fname);
+                FileInputStream fis = new FileInputStream(fileToZip);
+                ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+                zipOut.putNextEntry(zipEntry);
+
+                byte[]bytes = new byte[1024];
+                int length;
+                while ((length = fis.read(bytes)) >= 0){
+                    zipOut.write(bytes, 0, length);
+                }
+                fis.close();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 }
