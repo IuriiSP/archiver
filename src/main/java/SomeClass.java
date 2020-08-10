@@ -12,11 +12,16 @@ public class SomeClass {
 
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         File directory = new File(getPath());
         HashMap<String, List<String>> directories = dirSort(directory);
-        String time = getTime();
+        String time = null;
+        try {
+            time = getTime();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         File zipDir = new File(directory + time);
         zipDir.mkdirs();
         directories.forEach((k,v) -> zipCompress(v, zipDir + "\\" + k));
