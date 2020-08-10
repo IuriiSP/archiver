@@ -3,7 +3,6 @@ import org.apache.commons.net.ntp.TimeInfo;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -65,31 +64,6 @@ public class SomeClass {
         }
         String directoryName = props.getProperty("catalog");
         return directoryName;
-    }
-
-    public static HashMap<String, List<String>> dirSort(File file){
-        File catalog = new File(getPath());
-        String s[] = catalog.list();
-        List<String> am = new ArrayList<>();
-        List<String> nz = new ArrayList<>();
-        List<String> digit = new ArrayList<>();
-        HashMap<String,List<String>> dir = new HashMap<>();
-
-        for (int i = 0; i < s.length; i++){
-            if (s[i].matches(".*\\d{4,}.*")){
-                digit.add(file.getPath() + "\\" + s[i]);
-            }
-            else if (s[i].matches("[a-mA-M].*")){
-                am.add(file.getPath() + "\\" + s[i]);
-            }
-            else if (s[i].matches("[n-zN-Z].*")){
-                nz.add(file.getPath() + "\\" + s[i]);
-            }
-        }
-        dir.put("am.zip", am);
-        dir.put("nz", nz);
-        dir.put("digit.zip", digit);
-        return dir;
     }
 
     public static String getTime () throws IOException {
