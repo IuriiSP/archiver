@@ -3,6 +3,11 @@ import org.apache.commons.net.ntp.TimeInfo;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -15,7 +20,7 @@ public class SomeClass {
     public static void main(String[] args) {
 
         File directory = new File(getPath());
-        HashMap<String, List<String>> directories = dirSort(directory);
+        HashMap<String, List<File>> directories = dirSort2(directory);
         String time = null;
         try {
             time = getTime();
@@ -24,7 +29,29 @@ public class SomeClass {
         }
         File zipDir = new File(directory + time);
         zipDir.mkdirs();
-        directories.forEach((k,v) -> zipCompress(v, zipDir + "\\" + k));
+        directories.forEach((k,v) -> {
+            if (k != "nz"){
+                zipCompress(v, zipDir + "\\" + k);
+            }
+
+        });
+        directories.forEach((k, v) -> {
+            if (k == "nz"){
+                v.forEach(f ->{
+                        try {
+                            copyFile(f, new File((zipDir.toPath() + "\\" + f.getName())));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+        });
+
+
+
+
+
+
     }
 
     public static String getPath(){
@@ -60,7 +87,7 @@ public class SomeClass {
             }
         }
         dir.put("am.zip", am);
-        dir.put("nz.zip", nz);
+        dir.put("nz", nz);
         dir.put("digit.zip", digit);
         return dir;
     }
@@ -79,12 +106,12 @@ public class SomeClass {
         return simpleDateFormat.format(time);
     }
 
-    public static void zipCompress (List<String> list, String filename){
+    public static void zipCompress (List<File> list, String filename){
         try (FileOutputStream fos = new FileOutputStream(filename);ZipOutputStream zipOut = new ZipOutputStream(fos)){
-            for (String fname : list){
-                File fileToZip = new File(fname);
-                FileInputStream fis = new FileInputStream(fileToZip);
-                ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+            for (File f : list){
+
+                FileInputStream fis = new FileInputStream(f);
+                ZipEntry zipEntry = new ZipEntry(f.getName());
                 zipOut.putNextEntry(zipEntry);
 
                 byte[]bytes = new byte[1024];
@@ -100,4 +127,44 @@ public class SomeClass {
         }
     }
 
+    public static void copyDir(File sourceDirName, File targetSourceDir) throws IOException {
+        File[] listOfFiles = sourceDirName.listFiles();
+        Path destDir = Paths.get(targetSourceDir.getAbsolutePath());
+        if (listOfFiles != null)
+            for (File file : listOfFiles)
+                Files.copy(file.toPath(), destDir.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
+
+    }
+
+    public static HashMap<String, List<File>> dirSort2(File file){
+        File catalog = new File(getPath());
+        File[] s = catalog.listFiles();
+        List<File> am = new ArrayList<>();
+        List<File> nz = new ArrayList<>();
+        List<File> digit = new ArrayList<>();
+        HashMap<String,List<File>> dir = new HashMap<>();
+
+        for (int i = 0; i < s.length; i++){
+            if (s[i].getName().matches(".*\\d{4,}.*")){
+                digit.add(s[i]);
+            }
+            else if (s[i].getName().matches("[a-mA-M].*")){
+                am.add(s[i]);
+            }
+            else if (s[i].getName().matches("[n-zN-Z].*")){
+                nz.add(s[i]);
+            }
+        }
+        dir.put("am.zip", am);
+        dir.put("nz", nz);
+        dir.put("digit.zip", digit);
+        return dir;
+    }
+
+    public static void copyFile (File source, File dest) throws IOException {
+        Path copied = dest.toPath();
+        Path originalPath = source.toPath();
+        Files.copy(originalPath, copied, StandardCopyOption.REPLACE_EXISTING);
+    }
 }
+
