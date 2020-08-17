@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TimeService {
-    public String getTime (){
+    public String getTime() {
         String TIME_SERVER = "pool.ntp.org";
 //        www.pool.ntp.org поддерживает round-robin списки публичных Stratum-2 NTP серверов.
 //        Таким образом обеспечивается балансировка нагрузки, и они практически всегда доступны.

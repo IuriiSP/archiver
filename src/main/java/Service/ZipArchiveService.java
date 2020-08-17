@@ -30,7 +30,7 @@ public class ZipArchiveService implements ArchiveService {
         } finally {
             try {
                 if (fis != null)
-                fis.close();
+                    fis.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

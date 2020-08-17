@@ -1,9 +1,9 @@
 package Service;
 
 public class ArchiveFactory {
-    public ArchiveService getArchiveType(ArchiveType type){
+    public ArchiveService getArchiveType(ArchiveType type) {
         ArchiveService toReturn = null;
-        switch (type){
+        switch (type) {
             case ZIP:
                 toReturn = new ZipArchiveService();
                 break;
