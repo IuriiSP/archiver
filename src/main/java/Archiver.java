@@ -8,9 +8,10 @@ import java.util.List;
 public class Archiver {
     public static void main(String[] args) {
         ArchiveFactory factory = new ArchiveFactory();
-//        Получил путь к начальной директории
-        File directory = new File(new PathService().getPath());
-
+////        Получил путь к начальной директории
+        File directory = new File(PropCache.getInstance().getProperty("catalog"));
+//        System.out.println(directory.getAbsolutePath());
+//
 //        Отсортировал файлы в директории
         HashMap<String, List<File>> dirList = new DirectorySortService().dirSort(directory);
 

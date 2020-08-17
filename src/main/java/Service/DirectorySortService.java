@@ -7,8 +7,8 @@ import java.util.List;
 
 public class DirectorySortService {
     public HashMap<String, List<File>> dirSort(File catalog){
-        PathService pathService = new PathService();
-        catalog = new File(pathService.getPath());
+//        PathService pathService = new PathService();
+//        catalog = new File(pathService.getPath());
         File[] files = catalog.listFiles();
         List<File> am = new ArrayList<>();
         List<File> nz = new ArrayList<>();
